@@ -3,6 +3,7 @@
 {{>partial_header}}
 
 import warnings
+import allure
 from pydantic import validate_call, Field, StrictFloat, StrictStr, StrictInt
 from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
@@ -35,15 +36,16 @@ class {{classname}}:
     {{#async}}async {{/async}}def {{operationId}}{{>partial_api_args}} -> {{{returnType}}}{{^returnType}}None{{/returnType}}:
 {{>partial_api}}
 
-        response_data = {{#async}}await {{/async}}self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        {{#async}}await {{/async}}response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        ).data
+        with allure.step('{{httpMethod}} {{{path}}}'):
+            response_data = {{#async}}await {{/async}}self.api_client.call_api(
+                *_param,
+                _request_timeout=_request_timeout
+            )
+            {{#async}}await {{/async}}response_data.read()
+            return self.api_client.response_deserialize(
+                response_data=response_data,
+                response_types_map=_response_types_map,
+            ).data
 
 
     @validate_call
